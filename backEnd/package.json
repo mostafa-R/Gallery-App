@@ -5,11 +5,9 @@
   "scripts": {
     "start": "node ./bin/www",
     "start:dev": "nodemon ./bin/www",
-    "build":"npm run build"
+    "build":"npm i"
   },
-  "engines": {
-    "node": "18"
-  },
+
   "dependencies": {
     "bcrypt": "^5.1.0",
     "cookie-parser": "~1.4.4",
