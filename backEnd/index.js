@@ -21,7 +21,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
-app.use("/images", express.static(path.join(__dirname, "public/images")));
+app.use("*/images", express.static(__dirname + "/public/images"));
 
 
 mongoose.connect(process.env.DB_URL, {
