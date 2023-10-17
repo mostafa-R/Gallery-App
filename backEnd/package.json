@@ -7,6 +7,9 @@
     "start:dev": "nodemon ./bin/www",
     "build":"npm i"
   },
+   "engines": {
+    "node": "18.x"
+  },
 
   "dependencies": {
     "bcrypt": "^5.1.0",
