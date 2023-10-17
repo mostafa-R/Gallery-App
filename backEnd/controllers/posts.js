@@ -13,12 +13,14 @@ exports.create = async (req, res) => {
       description,
       //userPicturePath: user.picturePath,
       picturePath: "/public/images/" + req.file.filename,
+      
       likes: [],
     });
     await newPost.save();
 
     const post = await Post.find();
     res.status(201).json(post);
+    
   } catch (err) {
     res.status(409).json({ message: err.message });
   }
@@ -41,7 +43,8 @@ exports.getPost = async (req, res) => {
       return res.status(404).json({ message: "Post not found" });
     }
 
-    res.status(200).json(post);
+    res.status(200).json(post)
+    console.log(post.picturePath)
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error" });
