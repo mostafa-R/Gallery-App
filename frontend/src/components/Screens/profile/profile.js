@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Card } from "react-bootstrap";
 import Cookies from "js-cookie";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { Modal, Button } from "react-bootstrap";
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -13,7 +16,9 @@ function Profile() {
   const [editedPostData, setEditedPostData] = useState({
     title: "",
     description: "",
+    picturePath: "",
   });
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
   const jwtToken = Cookies.get("jwtToken");
 
   useEffect(() => {
@@ -37,7 +42,6 @@ function Profile() {
       .then(([userDataResponse, userPostsResponse]) => {
         setUserData(userDataResponse);
         setUserPosts(userPostsResponse);
-        
       })
       .catch((error) =>
         console.error("Error fetching user data or posts:", error)
@@ -55,10 +59,13 @@ function Profile() {
   const handleSaveUserData = () => {
     if (!jwtToken) {
       console.error("JWT token not found in cookies");
-      return
+      return;
     }
-    
-      
+
+    if (editingUserData.password && editingUserData.password.length < 6) {
+      toast.error("Password must be at least 6 characters long.");
+      return;
+    }
 
     fetch(`${API_BASE_URL}/account/profile/update`, {
       method: "PUT",
@@ -81,6 +88,13 @@ function Profile() {
   };
 
   const handleEditPost = (postId) => {
+    const postToEdit = userPosts.find((post) => post.id === postId);
+
+    setEditedPostData({
+      title: postToEdit.title,
+      description: postToEdit.description,
+    });
+
     setEditingPost(postId);
   };
 
@@ -90,23 +104,25 @@ function Profile() {
       return;
     }
 
+    setShowConfirmModal(true);
+  };
+
+  const handleSavePostEditConfirmation = (postId) => {
+    setShowConfirmModal(false);
+
     fetch(`${API_BASE_URL}/post/update/${postId}`, {
       method: "PUT",
       headers: {
         Authorization: `Bearer ${jwtToken}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        title: editedPostData.title,
-        description: editedPostData.description,
-      }),
+      body: JSON.stringify(editedPostData),
     })
       .then((response) => {
         if (response.ok) {
           console.log("Post updated successfully.");
           setEditingPost(null);
           window.location.reload();
-      
         } else {
           console.error("Error updating post:", response.statusText);
         }
@@ -120,28 +136,61 @@ function Profile() {
       return;
     }
 
+    const confirmDelete = () => {
+      toast.info(
+        <div>
+          <p>Are you sure you want to delete this post?</p>
+          <div className="d-flex justify-content-between">
+            <button
+              className="btn btn-danger btn"
+              onClick={() => {
+                handleDeleteConfirmed(postId);
+              }}
+            >
+              Yes
+            </button>
+            <button
+              className="btn btn-success"
+              onClick={() => {
+                toast.dismiss();
+              }}
+            >
+              No
+            </button>
+          </div>
+        </div>,
+        {
+          position: toast.POSITION.TOP_CENTER,
+        }
+      );
+    };
+
+    confirmDelete();
+  };
+
+  const handleDeleteConfirmed = (postId) => {
+    toast.dismiss();
     fetch(`${API_BASE_URL}/post/${postId}`, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${jwtToken}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        title: editedPostData.title,
-        description: editedPostData.description,
-      }),
     })
       .then((response) => {
         if (response.ok) {
           console.log("Post Deleted successfully.");
           setEditingPost(null);
           window.location.reload();
-      
         } else {
           console.error("Error deleting post:", response.statusText);
         }
       })
       .catch((error) => console.error("Error deleting post:", error));
+  };
+
+  const handleCancelPostEditConfirmation = () => {
+    setShowConfirmModal(false);
   };
 
   return (
@@ -153,7 +202,7 @@ function Profile() {
             <strong>Email:</strong> {userData.email}
           </div>
           <div className="mb-3">
-            <strong>Name:</strong>{" "}
+            <strong>Edit Name:</strong>{" "}
             {isEditing ? (
               <input
                 type="text"
@@ -172,7 +221,7 @@ function Profile() {
           </div>
           {isEditing && (
             <div className="mb-3">
-              <strong>Password:</strong>{" "}
+              <strong>New Password:</strong>{" "}
               <input
                 type="password"
                 className="form-control"
@@ -213,9 +262,7 @@ function Profile() {
           <div className="row">
             {userPosts.map((post) => (
               <div key={post.id} className="col-md-4 mb-3">
-                <Card 
-                    style={{ width: "300px", height: "400px" }} 
-                >
+                <Card style={{ width: "300px", height: "400px" }}>
                   {post.picturePath && (
                     <Card.Img
                       variant="top"
@@ -227,7 +274,11 @@ function Profile() {
                           "_blank"
                         )
                       }
-                      style={{ cursor: "pointer" ,  width: "100%", height: "60%"}}
+                      style={{
+                        cursor: "pointer",
+                        width: "100%",
+                        height: "60%",
+                      }}
                     />
                   )}
                   <Card.Body>
@@ -258,7 +309,7 @@ function Profile() {
                           className="btn btn-success"
                           onClick={() => handleSaveEditedPost(post.id)}
                         >
-                          Save
+                          Edit
                         </button>{" "}
                         <button
                           className="btn btn-danger btn-sm"
@@ -275,6 +326,7 @@ function Profile() {
                         <Card.Text className="card-text">
                           {post.description}
                         </Card.Text>
+
                         <div className="d-flex justify-content-between">
                           <button
                             className="btn btn-primary"
@@ -300,6 +352,29 @@ function Profile() {
       ) : (
         <p>Loading user posts...</p>
       )}
+
+      <Modal show={showConfirmModal} onHide={handleCancelPostEditConfirmation}>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm Edit</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>Are you sure you want to save the edited post?</Modal.Body>
+        <Modal.Footer>
+          <Button
+            variant="secondary"
+            onClick={handleCancelPostEditConfirmation}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="primary"
+            onClick={() => handleSavePostEditConfirmation(editingPost)}
+          >
+            Save
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      <ToastContainer />
     </div>
   );
 }

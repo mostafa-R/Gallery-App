@@ -1,17 +1,14 @@
-
-const jwt = require('jsonwebtoken');
-const jwtHelpers = require('../utils/jwtHelpers');
+const jwt = require("jsonwebtoken");
+const jwtHelpers = require("../utils/jwtHelpers");
 
 exports.check = (req, res, next) => {
-  // let token = req.headers.authorization || req.cookies.jwtToken; 
-  let token = req.headers.authorization || req.cookies.jwtToken; // Get the JWT token from headers or cookies
+  let token = req.headers.authorization || req.cookies.jwtToken;
 
   if (!token) {
     return res.status(401).json({ message: "Unauthorized!" });
   }
 
-  if (token.startsWith('Bearer ')) {
-    // Remove the 'Bearer ' prefix from the token
+  if (token.startsWith("Bearer ")) {
     token = token.slice(7, token.length);
   }
 

@@ -25,7 +25,7 @@ const ModelSchema = mongoose.Schema(
 
     picturePath: {
       type: String,
-      // required: false,
+      required: true,
     },
     userPicturePath: {
       type: String,

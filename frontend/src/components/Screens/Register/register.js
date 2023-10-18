@@ -3,6 +3,8 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import "./index.css";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
@@ -10,9 +12,16 @@ const Register = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState(""); // Add confirmPassword state
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
+  const [showToast, setShowToast] = useState(false);
   const navigate = useNavigate();
+
+ 
+  const handleNavigation = () => {
+    navigate("/");
+    window.location.reload();
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -21,27 +30,31 @@ const Register = () => {
 
     if (!name) {
       setError("Please enter your name");
+      setShowToast(false);
       return;
     }
 
     if (!email) {
       setError("Please enter an email");
+      setShowToast(false);
       return;
     }
 
     if (!password) {
       setError("Please enter a password");
+      setShowToast(false);
       return;
     }
 
     if (password.length < 6) {
       setError("Password must be at least 6 characters");
+      setShowToast(false);
       return;
     }
 
     if (password !== confirmPassword) {
-      // Check if passwords match
       setError("Passwords do not match");
+      setShowToast(false);
       return;
     }
 
@@ -61,18 +74,27 @@ const Register = () => {
         Cookies.set("jwtToken", data.data.jwtToken, { expires: 7 });
         localStorage.setItem("loggedIn", "true");
 
-        navigate("/");
-        window.location.reload();
+        if (!showToast) {
+          toast.success("تم انشاء الحساب بنجاح", {
+            position: toast.POSITION.TOP_LEFT,
+          });
+          setShowToast(true);
+        }
+
+        setTimeout(handleNavigation, 2000);
       } else {
         console.log("Something went wrong");
         setError("Registration failed. Please check your credentials.");
+        setShowToast(false);
       }
     } catch (error) {
       console.error("An error occurred:", error);
       if (error.response && error.response.status === 400) {
-        setError(error.response.data.message); // Handle duplicate email
+        setError(error.response.data.message);
+        setShowToast(false);
       } else {
         setError("Something went wrong. Please try again later.");
+        setShowToast(false);
       }
     }
   };
@@ -134,6 +156,7 @@ const Register = () => {
               Register
             </button>
           </div>
+          {showToast && <ToastContainer />}
           <p className="forgot-password text-right">
             Already have an account? <a href="/login">Login</a>
           </p>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import axios from "axios";
 import { Card, Button } from "react-bootstrap";
 import Cookies from "js-cookie";
@@ -31,10 +31,10 @@ function PhotoThumbnail({ post }) {
   };
 
   return (
-    <Card 
-    key={post._id} 
-    className="mb-3"
-    style={{ width: "300px", height: "400px" }} 
+    <Card
+      key={post._id}
+      className="mb-3"
+      style={{ width: "300px", height: "400px" }}
     >
       <Card.Img
         variant="top"
@@ -43,7 +43,7 @@ function PhotoThumbnail({ post }) {
         onClick={() =>
           window.open(`${API_BASE_URL}${post.picturePath}`, "_blank")
         }
-        style={{ cursor: "pointer" , width: "100%", height: "60%"}}
+        style={{ cursor: "pointer", width: "100%", height: "60%" }}
       />
       <Card.Body>
         <Card.Title>{post.title}</Card.Title>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import PostsList from "./getPosts";
 import { Button, Container, Row, Col } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
