@@ -262,7 +262,7 @@ function Profile() {
           <div className="row">
             {userPosts.map((post) => (
               <div key={post.id} className="col-md-4 mb-3">
-                <Card style={{ width: "300px", height: "400px" }}>
+                <Card>
                   {post.picturePath && (
                     <Card.Img
                       variant="top"
@@ -274,11 +274,7 @@ function Profile() {
                           "_blank"
                         )
                       }
-                      style={{
-                        cursor: "pointer",
-                        width: "100%",
-                        height: "60%",
-                      }}
+                      style={{ cursor: "pointer" }}
                     />
                   )}
                   <Card.Body>

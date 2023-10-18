@@ -31,11 +31,7 @@ function PhotoThumbnail({ post }) {
   };
 
   return (
-    <Card
-      key={post._id}
-      className="mb-3"
-      style={{ width: "300px", height: "400px" }}
-    >
+    <Card key={post._id} className="mb-3">
       <Card.Img
         variant="top"
         src={`${API_BASE_URL}${post.picturePath}`}
